@@ -1,0 +1,42 @@
+version: '3' # Defines the version of Docker Compose. Version 3 is widely supported and recommended for production environments.
+
+services: # Defines the individual containers (services) that will run as part of the application.
+
+  app: # This is the Node.js Express application service.
+    image: node:16 # Specifies the Docker image to use. We are using the official Node.js version 16 image.
+    container_name: express-app # Sets a custom name for the container (optional but helpful for identification).
+    
+    working_dir: /usr/src/app # Sets the working directory inside the container. This is where the app will run.
+    
+    volumes: 
+      - .:/usr/src/app # Mounts the current directory (the host) to /usr/src/app inside the container. 
+                       # This allows live code changes without rebuilding the image.
+
+    ports: 
+      - "3000:3000" # Maps port 3000 on the host machine to port 3000 on the container. 
+                    # This is necessary to access the Node.js app from outside the container.
+
+    command: npm start # Specifies the command to run when the container starts. Here, we are starting the Node.js app.
+
+    environment: # Defines environment variables that will be passed into the container.
+      NODE_ENV: development # Sets the Node.js environment to development. 
+                            # This can be useful for configuring different environments (e.g., development, production).
+
+    depends_on: # Specifies dependencies. The app service depends on the MongoDB service.
+      - mongo  # This ensures that MongoDB starts before the app service is initialized.
+
+  mongo: # This service defines the MongoDB database.
+    image: mongo:latest # Uses the latest official MongoDB Docker image.
+    container_name: mongo-db # Sets a custom name for the MongoDB container.
+
+    ports: 
+      - "27017:27017" # Maps MongoDB's default port 27017 on the host to port 27017 in the container.
+    
+    volumes:
+      - mongo-data:/data/db # Mounts the named volume 'mongo-data' to MongoDB's data directory. 
+                            # This ensures that data is persisted even if the container is stopped.
+
+volumes: # Defines named volumes for persistent storage across container restarts.
+  mongo-data: # This volume stores MongoDB data persistently.
+    # Docker will automatically manage the location and lifecycle of this volume.
+
